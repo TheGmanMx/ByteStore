@@ -1,0 +1,5 @@
+C:\Users\user\Desktop\ByteStoreWebService\ByteStoreWebService\bin\ByteStoreWebService.dll
+C:\Users\user\Desktop\ByteStoreWebService\ByteStoreWebService\bin\ByteStoreWebService.pdb
+C:\Users\user\Desktop\ByteStoreWebService\ByteStoreWebService\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\user\Desktop\ByteStoreWebService\ByteStoreWebService\obj\Debug\ByteStoreWebService.dll
+C:\Users\user\Desktop\ByteStoreWebService\ByteStoreWebService\obj\Debug\ByteStoreWebService.pdb
