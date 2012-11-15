@@ -34,8 +34,7 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 
 public class InfoApp extends SherlockActivity {
-	/** An array of strings to populate dropdown list */
-	String[] actions = new String[] { "Categorias", "Sistema", "Oficina",
+	String[] actions = new String[] { "Top 10", "Sistema", "Oficina",
 			"Juegos" };
 
 	@Override
@@ -78,11 +77,9 @@ public class InfoApp extends SherlockActivity {
 		ActionBar.OnNavigationListener navigationListener = new OnNavigationListener() {
 
 			@Override
-			public boolean onNavigationItemSelected(int itemPosition,
-					long itemId) {
-				Toast.makeText(getBaseContext(),
-						"Current Action : " + actions[itemPosition],
-						Toast.LENGTH_SHORT).show();
+			public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+				
+				//Toast.makeText(getBaseContext(), "Current Action : " + actions[itemPosition], Toast.LENGTH_SHORT).show();
 				return false;
 			}
 		};
@@ -213,7 +210,7 @@ public class InfoApp extends SherlockActivity {
 		this.finish();
 		startActivity(refresh);
 	}
-
+/*
 	public void Download(String apkurl) {
 		try {
 			String urlString = apkurl;
@@ -248,10 +245,10 @@ public class InfoApp extends SherlockActivity {
 			fos.close();
 			is.close();
 
-			String ruta = Environment.getExternalStorageDirectory() + PATH;
+			String ruta = Environment.getExternalStorageDirectory() + PATH+ "app.apk";
 
-			Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(
-					Uri.fromFile(new File(ruta + "app.apk")),
+			Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+			intent.setDataAndType(Uri.fromFile(new File(ruta)),
 					"application/vnd.android.package-archive");
 			startActivity(intent);
 			Toast.makeText(getApplicationContext(), "Aplicacion instalada",
@@ -262,7 +259,7 @@ public class InfoApp extends SherlockActivity {
 
 		}
 	}
-
+*/
 	private class LoadViewTask extends AsyncTask<String, Integer, Void> {
 
 		@Override
@@ -305,8 +302,7 @@ public class InfoApp extends SherlockActivity {
 				}
 				fos.close();
 				is.close();
-				String ruta = "file://"
-						+ Environment.getExternalStorageDirectory() + PATH;
+				String ruta = "file://" + PATH;
 				rutaarchivo = ruta + "app.apk";
 
 			} catch (IOException e) {
@@ -336,8 +332,8 @@ public class InfoApp extends SherlockActivity {
 				intent.setDataAndType(Uri.fromFile(new File(rutaarchivo)),
 						"application/vnd.android.package-archive");
 				startActivity(intent);
-				Toast.makeText(getApplicationContext(), "Aplicacion instalada",
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "Aplicacion instalada: " + rutaarchivo,
+						Toast.LENGTH_LONG).show();
 				rutaarchivo = "";
 			}
 			// initialize the View
