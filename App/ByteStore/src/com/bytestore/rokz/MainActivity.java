@@ -39,9 +39,8 @@ public class MainActivity extends SherlockActivity {
 
 		setContentView(R.layout.activity_main);
 		try {
-			if (InetAddress.getByName("192.168.1.4").isReachable(25)) {
-				elementosLista(BuscarWS());
-			} else {
+			if (!InetAddress.getByName("192.168.1.4").isReachable(25)) {
+
 				Toast.makeText(
 						getApplicationContext(),
 						"No se logro conectar al servidor. Intenda de nuevo mas tarde.",
@@ -142,7 +141,18 @@ public class MainActivity extends SherlockActivity {
 					"Juegos" });
 			break;
 		default:
-			elementosLista(BuscarWS());
+
+			try {
+				if (InetAddress.getByName("192.168.1.4").isReachable(25)) {
+					elementosLista(BuscarWS());
+				}
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			break;
 		}
 	}

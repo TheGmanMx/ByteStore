@@ -23,19 +23,15 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.view.Window;
-import android.widget.ArrayAdapter;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 
 public class InfoApp extends SherlockActivity {
-	String[] actions = new String[] { "Top 10", "Sistema", "Oficina",
-			"Juegos" };
+	String[] actions = new String[] { "Top 10", "Sistema", "Oficina", "Juegos" };
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -64,32 +60,6 @@ public class InfoApp extends SherlockActivity {
 					Toast.LENGTH_LONG).show();
 			e.printStackTrace();
 		}
-
-		/** Create an array adapter to populate dropdownlist */
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-				getBaseContext(), R.layout.sherlock_spinner_item, actions);
-
-		/** Enabling dropdown list navigation for the action bar */
-		getSupportActionBar().setNavigationMode(
-				com.actionbarsherlock.app.ActionBar.NAVIGATION_MODE_LIST);
-
-		/** Defining Navigation listener */
-		ActionBar.OnNavigationListener navigationListener = new OnNavigationListener() {
-
-			@Override
-			public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-				
-				//Toast.makeText(getBaseContext(), "Current Action : " + actions[itemPosition], Toast.LENGTH_SHORT).show();
-				return false;
-			}
-		};
-
-		/**
-		 * Setting dropdown items and item navigation listener for the actionbar
-		 */
-		getSupportActionBar().setListNavigationCallbacks(adapter,
-				navigationListener);
-		adapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
 	}
 
 	TextView txtViewName;
@@ -210,56 +180,7 @@ public class InfoApp extends SherlockActivity {
 		this.finish();
 		startActivity(refresh);
 	}
-/*
-	public void Download(String apkurl) {
-		try {
-			String urlString = apkurl;
-			URL url = new URL(urlString);
-			HttpURLConnection c = (HttpURLConnection) url.openConnection();
-			c.setRequestMethod("GET");
-			c.setDoOutput(true);
-			c.connect();
 
-			String PATH = Environment.getExternalStorageDirectory()
-					+ "/AppStore/rokz/";
-			File file = new File(PATH);
-			file.mkdirs();
-			File outputFile = new File(file, "app.apk");
-			FileOutputStream fos = new FileOutputStream(outputFile);
-
-			InputStream is = c.getInputStream();
-
-			byte[] buffer = new byte[1024];
-			int len1 = 0;
-
-			int lenghtOfFile = c.getContentLength();
-			long total = 0;
-
-			while ((len1 = is.read(buffer)) != -1) {
-
-				total += len1;
-				pd.setProgress((int) ((total * 100) / lenghtOfFile));
-				fos.write(buffer, 0, len1);
-			}
-
-			fos.close();
-			is.close();
-
-			String ruta = Environment.getExternalStorageDirectory() + PATH+ "app.apk";
-
-			Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
-			intent.setDataAndType(Uri.fromFile(new File(ruta)),
-					"application/vnd.android.package-archive");
-			startActivity(intent);
-			Toast.makeText(getApplicationContext(), "Aplicacion instalada",
-					Toast.LENGTH_SHORT).show();
-		} catch (IOException e) {
-			Toast.makeText(getApplicationContext(), "Error al descargar",
-					Toast.LENGTH_LONG).show();
-
-		}
-	}
-*/
 	private class LoadViewTask extends AsyncTask<String, Integer, Void> {
 
 		@Override
@@ -302,8 +223,7 @@ public class InfoApp extends SherlockActivity {
 				}
 				fos.close();
 				is.close();
-				String ruta = "file://" + PATH;
-				rutaarchivo = ruta + "app.apk";
+				rutaarchivo = PATH + "app.apk";
 
 			} catch (IOException e) {
 				Toast.makeText(getApplicationContext(), "Error al descargar",
@@ -331,14 +251,17 @@ public class InfoApp extends SherlockActivity {
 				Intent intent = new Intent(Intent.ACTION_VIEW);
 				intent.setDataAndType(Uri.fromFile(new File(rutaarchivo)),
 						"application/vnd.android.package-archive");
-				startActivity(intent);
-				Toast.makeText(getApplicationContext(), "Aplicacion instalada: " + rutaarchivo,
-						Toast.LENGTH_LONG).show();
+				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);	
+				//startActivityForResult(intent,1);
+				Toast.makeText(getApplicationContext(),
+						"Aplicacion instalada: " + rutaarchivo, Toast.LENGTH_LONG)
+						.show();
 				rutaarchivo = "";
 			}
 			// initialize the View
 			// setContentView(R.layout.main);
 		}
-	}
 
+	}
 }
