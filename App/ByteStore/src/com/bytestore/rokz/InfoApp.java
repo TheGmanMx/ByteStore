@@ -29,17 +29,30 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 
 public class InfoApp extends SherlockActivity {
-	String[] actions = new String[] { "Top 10", "Sistema", "Oficina", "Juegos" };
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			Intent intent = new Intent(this, MainActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.onCreate(savedInstanceState);
+		this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 		setContentView(R.layout.activity_info_app);
 		try {
-			if (InetAddress.getByName("192.168.1.4").isReachable(25)) {
+			if (InetAddress.getByName("192.168.1.4").isReachable(50)) {
 				cargarDetalles();
 			} else {
 				Toast.makeText(
@@ -52,13 +65,11 @@ public class InfoApp extends SherlockActivity {
 					getApplicationContext(),
 					"No se logro conectar al servidor. Verifica tu conexion al internet.",
 					Toast.LENGTH_LONG).show();
-			e.printStackTrace();
 		} catch (IOException e) {
 			Toast.makeText(
 					getApplicationContext(),
 					"No se logro conectar al servidor. Verifica tu conexion al internet.",
 					Toast.LENGTH_LONG).show();
-			e.printStackTrace();
 		}
 	}
 
@@ -252,11 +263,11 @@ public class InfoApp extends SherlockActivity {
 				intent.setDataAndType(Uri.fromFile(new File(rutaarchivo)),
 						"application/vnd.android.package-archive");
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				startActivity(intent);	
-				//startActivityForResult(intent,1);
+				startActivity(intent);
+				// startActivityForResult(intent,1);
 				Toast.makeText(getApplicationContext(),
-						"Aplicacion instalada: " + rutaarchivo, Toast.LENGTH_LONG)
-						.show();
+						"Aplicacion instalada: " + rutaarchivo,
+						Toast.LENGTH_LONG).show();
 				rutaarchivo = "";
 			}
 			// initialize the View

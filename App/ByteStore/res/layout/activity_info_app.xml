@@ -5,86 +5,11 @@
     android:background="@color/Gris"
     tools:ignore="UselessParent" >
 
-    <TableLayout
-        android:id="@+id/tableLayout1"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
-
-        <TableRow
-            android:id="@+id/tableRow5"
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:layout_weight="1" >
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:contentDescription="@string/barra"
-                android:gravity="fill" >
-
-                <Button
-                    android:id="@+id/Button2"
-                    style="@style/AppTheme"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:contentDescription="@string/topapps"
-                    android:text="@string/btnTopApps" />
-
-                <Button
-                    android:id="@+id/Button3"
-                    style="@style/AppTheme"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:contentDescription="@string/installados"
-                    android:onClick="BuscarWS"
-                    android:text="@string/btnInstalados"
-                    android:textSize="@dimen/padding_large" />
-            </LinearLayout>
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow2"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" >
-
-            <EditText
-                android:id="@+id/editText1"
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:ems="10"
-                android:inputType="text"
-                android:text="@string/txtBuscar" >
-            </EditText>
-
-            <Button
-                android:id="@+id/button4"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:onClick="getKey"
-                android:text="@string/buscar" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow3"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="5"
-            android:gravity="fill" >
-        </TableRow>
-    </TableLayout>
-
     <ScrollView
         android:id="@+id/scrollview1"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/tableLayout1" >
+        android:layout_alignParentLeft="true" >
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -99,7 +24,6 @@
                 android:layout_height="0dp"
                 android:layout_weight="0.40"
                 android:paddingLeft="4dp"
-                android:text="@string/EncabezadoAPK1"
                 android:textColor="@color/Blanco"
                 android:textSize="@dimen/titulo" />
 

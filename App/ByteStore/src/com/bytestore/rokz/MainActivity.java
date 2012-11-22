@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.content.Intent;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -27,50 +27,25 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
 
 public class MainActivity extends SherlockActivity {
 
-	/** An array of strings to populate dropdown list */
-	String[] actions = new String[] { "Top 10", "Sistema", "Oficina", "Juegos" };
+	String[] actions = new String[] { "Top 10", "Instalados", "Sistema",
+			"Oficina", "Juegos" };
 
 	public void onCreate(Bundle savedInstanceState) {
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		setContentView(R.layout.activity_main);
+
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_main);
-		try {
-			if (!InetAddress.getByName("192.168.1.4").isReachable(25)) {
-
-				Toast.makeText(
-						getApplicationContext(),
-						"No se logro conectar al servidor. Intenda de nuevo mas tarde.",
-						Toast.LENGTH_LONG).show();
-			}
-		} catch (UnknownHostException e) {
-			Toast.makeText(
-					getApplicationContext(),
-					"No se logro conectar al servidor. Verifica tu conexion al internet.",
-					Toast.LENGTH_LONG).show();
-			e.printStackTrace();
-		} catch (IOException e) {
-			Toast.makeText(
-					getApplicationContext(),
-					"No se logro conectar al servidor. Verifica tu conexion al internet.",
-					Toast.LENGTH_LONG).show();
-			e.printStackTrace();
-		}
-
-		/** Create an array adapter to populate dropdownlist */
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
 				getBaseContext(), R.layout.sherlock_spinner_item, actions);
 
-		/** Enabling dropdown list navigation for the action bar */
 		getSupportActionBar().setNavigationMode(
 				com.actionbarsherlock.app.ActionBar.NAVIGATION_MODE_LIST);
-
-		/** Defining Navigation listener */
 		ActionBar.OnNavigationListener navigationListener = new OnNavigationListener() {
-
 			@Override
 			public boolean onNavigationItemSelected(int itemPosition,
 					long itemId) {
@@ -78,14 +53,13 @@ public class MainActivity extends SherlockActivity {
 				return false;
 			}
 		};
-
-		/**
-		 * Setting dropdown items and item navigation listener for the actionbar
-		 */
+		
 		getSupportActionBar().setListNavigationCallbacks(adapter,
 				navigationListener);
 		adapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
 	}
+
+	
 
 	public void elementosLista(String[] lista) {
 		ListView mlistView = (ListView) findViewById(R.id.listView1);
@@ -102,6 +76,7 @@ public class MainActivity extends SherlockActivity {
 					Intent intent = new Intent(MainActivity.this, InfoApp.class);
 					intent.putExtra("idApp", idAppsLista.get(Integer
 							.valueOf(AppsLista.indexOf(String.valueOf(s)))));
+
 					startActivity(intent);
 				}
 			}
@@ -117,6 +92,21 @@ public class MainActivity extends SherlockActivity {
 		return super.onCreateOptionsMenu(menu);
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.item1:
+			return true;
+		case R.id.item2:
+			return true;
+		case R.id.item3:
+			this.finish();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
 	public void goHome(View view) {
 		finish();
 		startActivity(getIntent());
@@ -129,22 +119,27 @@ public class MainActivity extends SherlockActivity {
 				Toast.LENGTH_LONG).show();
 		switch (idCat) {
 		case 1:
-			elementosLista(new String[] { "Lista de", "Aplicaciones de",
-					"Sistema" });
+			elementosLista(new String[] { "Lista de", "Aplicaciones",
+					"Instaladas" });
 			break;
 		case 2:
 			elementosLista(new String[] { "Lista de", "Aplicaciones de",
-					"Oficina" });
+					"Sistema" });
 			break;
 		case 3:
+			elementosLista(new String[] { "Lista de", "Aplicaciones de",
+					"Oficina" });
+			break;
+		case 4:
 			elementosLista(new String[] { "Lista de", "Aplicaciones de",
 					"Juegos" });
 			break;
 		default:
 
 			try {
-				if (InetAddress.getByName("192.168.1.4").isReachable(25)) {
-					elementosLista(BuscarWS());
+				if (InetAddress.getByName("192.168.1.4").isReachable(100)) {
+					//elementosLista(BuscarWS());
+					new Lista().execute();
 				}
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
@@ -159,11 +154,9 @@ public class MainActivity extends SherlockActivity {
 
 	private static final String NAMESPACE = "http://tempuri.org/";
 	private static final String URL = "http://192.168.1.4/AppStore/Service1.asmx";
-	private static final String SOAP_ACTIONname = "http://tempuri.org/TodosAppNom";
-	private static final String METHOD_NAMEname = "TodosAppNom";
-	private static final String SOAP_ACTIONid = "http://tempuri.org/TodosAppId";
-	private static final String METHOD_NAMEid = "TodosAppId";
-
+	private static final String SOAP_ACTION = "http://tempuri.org/listaApps";
+	private static final String METHOD_NAME = "listaApps";
+/*
 	public String[] BuscarWS() {
 
 		SoapObject request = new SoapObject(NAMESPACE, METHOD_NAMEname);
@@ -179,6 +172,7 @@ public class MainActivity extends SherlockActivity {
 
 		HttpTransportSE ht = new HttpTransportSE(URL);
 		HttpTransportSE htId = new HttpTransportSE(URL);
+		
 		try {
 			ht.call(SOAP_ACTIONname, envelope);
 			SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
@@ -203,4 +197,65 @@ public class MainActivity extends SherlockActivity {
 		}
 		return null;
 	}
+	*/
+	//ArrayList<String> lista = new ArrayList<String>();
+	
+	
+	
+	class Lista extends AsyncTask<Object, Object, Object> {
+
+		@Override
+		protected void onPostExecute(Object result) {
+
+			ListView mlistView = (ListView) findViewById(R.id.listView1);
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+					MainActivity.this, android.R.layout.simple_list_item_1,
+					AppsLista);
+			mlistView.setAdapter(adapter);
+			super.onPostExecute(result);
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+
+			super.onPreExecute();
+		}
+
+		@Override
+		protected Object doInBackground(Object... arg0) {
+			SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
+
+			SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
+					SoapEnvelope.VER11);
+			envelope.dotNet = true;
+			envelope.setOutputSoapObject(request);
+
+			HttpTransportSE ht = new HttpTransportSE(URL);
+
+			try {
+				ht.call(SOAP_ACTION, envelope);
+				SoapObject result = (SoapObject) envelope.bodyIn;
+				SoapObject result1 = (SoapObject) result.getProperty(0);
+
+				SoapObject resultId= (SoapObject)result1.getProperty(0);
+				SoapObject resultApp= (SoapObject)result1.getProperty(1);
+				
+				for (int i = 0; i < resultId.getPropertyCount(); i++) {
+					idAppsLista.add((String) resultId.getProperty(i).toString());
+					AppsLista.add((String) resultApp.getProperty(i).toString());
+				}
+
+			} catch (Exception e) {
+				Toast.makeText(getApplicationContext(), e.getMessage(),
+						Toast.LENGTH_SHORT).show();
+			}
+
+			return null;
+		}
+
+	}
+	
+	
+	
 }

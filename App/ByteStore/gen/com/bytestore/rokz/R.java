@@ -936,8 +936,6 @@ containing a value of this type.
         public static final int icon=0x7f020073;
     }
     public static final class id {
-        public static final int Button2=0x7f040035;
-        public static final int Button3=0x7f040036;
         public static final int abs__action_bar=0x7f040022;
         public static final int abs__action_bar_container=0x7f040021;
         public static final int abs__action_bar_subtitle=0x7f040011;
@@ -978,28 +976,24 @@ containing a value of this type.
         public static final int abs__title=0x7f04001b;
         public static final int abs__titleDivider=0x7f04001c;
         public static final int abs__up=0x7f04000b;
-        public static final int button4=0x7f040039;
-        public static final int button5=0x7f04003f;
+        public static final int button5=0x7f040037;
         public static final int disableHome=0x7f040009;
-        public static final int editText1=0x7f040038;
         public static final int edit_query=0x7f040027;
         public static final int homeAsUp=0x7f040006;
+        public static final int item1=0x7f04003a;
+        public static final int item2=0x7f040039;
+        public static final int item3=0x7f04003b;
         public static final int listMode=0x7f040002;
-        public static final int listView1=0x7f040040;
-        public static final int menu_settings=0x7f040041;
+        public static final int listView1=0x7f040038;
         public static final int normal=0x7f040001;
-        public static final int ratingBar1=0x7f04003e;
-        public static final int scrollview1=0x7f04003b;
+        public static final int ratingBar1=0x7f040036;
+        public static final int scrollview1=0x7f040033;
         public static final int showCustom=0x7f040008;
         public static final int showHome=0x7f040005;
         public static final int showTitle=0x7f040007;
         public static final int tabMode=0x7f040003;
-        public static final int tableLayout1=0x7f040033;
-        public static final int tableRow2=0x7f040037;
-        public static final int tableRow3=0x7f04003a;
-        public static final int tableRow5=0x7f040034;
-        public static final int textView1=0x7f04003d;
-        public static final int txtViewName=0x7f04003c;
+        public static final int textView1=0x7f040035;
+        public static final int txtViewName=0x7f040034;
         public static final int useLogo=0x7f040004;
         public static final int wrap_content=0x7f040000;
     }
@@ -1040,14 +1034,6 @@ containing a value of this type.
         public static final int activity_main=0x7f0b0001;
     }
     public static final class string {
-        public static final int APK1=0x7f090019;
-        public static final int EncabezadoAPK1=0x7f09001a;
-        public static final int Mensaje_btnHistorial=0x7f09001e;
-        public static final int Mensaje_btnInstalados=0x7f090022;
-        public static final int Mensaje_btnJuegos=0x7f090021;
-        public static final int Mensaje_btnOficina=0x7f090020;
-        public static final int Mensaje_btnSistema=0x7f09001f;
-        public static final int Mensaje_btnTopApps=0x7f09001d;
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
          */
         public static final int abs__action_bar_home_description=0x7f090000;
@@ -1094,27 +1080,12 @@ containing a value of this type.
          */
         public static final int abs__shareactionprovider_share_with_application=0x7f090009;
         public static final int app_name=0x7f09000f;
-        public static final int barra=0x7f090028;
-        public static final int btnCategorias=0x7f090012;
-        public static final int btnHisotrial=0x7f090016;
-        public static final int btnInstalados=0x7f090015;
-        public static final int btnTopApps=0x7f090014;
-        public static final int buscar=0x7f09002c;
-        public static final int categorias=0x7f090023;
-        public static final int download=0x7f09002b;
-        public static final int hello_world=0x7f090029;
-        public static final int historial=0x7f090026;
-        public static final int installados=0x7f090025;
-        public static final int logo=0x7f090027;
-        public static final int menu_settings=0x7f090010;
-        public static final int scrollCentral=0x7f090017;
-        public static final int texto_Gracias=0x7f09001c;
-        public static final int title_activity_info_app=0x7f09002a;
-        public static final int title_activity_main=0x7f090011;
-        public static final int topapps=0x7f090024;
-        public static final int txt1=0x7f09001b;
-        public static final int txtBuscar=0x7f090018;
-        public static final int txtlogo=0x7f090013;
+        public static final int download=0x7f090012;
+        public static final int exit=0x7f090013;
+        public static final int instalados=0x7f090014;
+        public static final int title_activity_info_app=0x7f090011;
+        public static final int title_activity_main=0x7f090010;
+        public static final int topApps=0x7f090015;
     }
     public static final class style {
         public static final int AppTheme=0x7f0a0059;
