@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,7 +19,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.SoapObject;
-import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
@@ -28,7 +27,6 @@ import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-
 
 public class MainActivity extends SherlockActivity {
 
@@ -49,17 +47,15 @@ public class MainActivity extends SherlockActivity {
 			@Override
 			public boolean onNavigationItemSelected(int itemPosition,
 					long itemId) {
-				cargarCategoria(itemPosition);
+				cargarCategoria(0);
 				return false;
 			}
 		};
-		
+
 		getSupportActionBar().setListNavigationCallbacks(adapter,
 				navigationListener);
 		adapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
 	}
-
-	
 
 	public void elementosLista(String[] lista) {
 		ListView mlistView = (ListView) findViewById(R.id.listView1);
@@ -76,7 +72,6 @@ public class MainActivity extends SherlockActivity {
 					Intent intent = new Intent(MainActivity.this, InfoApp.class);
 					intent.putExtra("idApp", idAppsLista.get(Integer
 							.valueOf(AppsLista.indexOf(String.valueOf(s)))));
-
 					startActivity(intent);
 				}
 			}
@@ -96,8 +91,10 @@ public class MainActivity extends SherlockActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.item1:
+			// Instalados
 			return true;
 		case R.id.item2:
+			// TopApps
 			return true;
 		case R.id.item3:
 			this.finish();
@@ -113,12 +110,9 @@ public class MainActivity extends SherlockActivity {
 	}
 
 	public void cargarCategoria(Integer idCat) {
-
-		Toast.makeText(getApplicationContext(),
-				"Se carga lista de aplicaciones con ID de categoria: " + idCat,
-				Toast.LENGTH_LONG).show();
 		switch (idCat) {
 		case 1:
+			// temporal
 			elementosLista(new String[] { "Lista de", "Aplicaciones",
 					"Instaladas" });
 			break;
@@ -135,17 +129,20 @@ public class MainActivity extends SherlockActivity {
 					"Juegos" });
 			break;
 		default:
-
 			try {
 				if (InetAddress.getByName("192.168.1.4").isReachable(100)) {
-					//elementosLista(BuscarWS());
-					new Lista().execute();
+					// se llama a ejecutar hilo que carga la lista. se debe
+					// enviar el nombre del metodo en el WS
+					new Lista().execute("listaApps");
+				} else {
+					Toast.makeText(
+							getApplicationContext(),
+							"No se logro conectar al servidor o no se tiene conexion al internet. Intenta mas tarde.",
+							Toast.LENGTH_LONG).show();
 				}
 			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			break;
@@ -154,77 +151,52 @@ public class MainActivity extends SherlockActivity {
 
 	private static final String NAMESPACE = "http://tempuri.org/";
 	private static final String URL = "http://192.168.1.4/AppStore/Service1.asmx";
-	private static final String SOAP_ACTION = "http://tempuri.org/listaApps";
-	private static final String METHOD_NAME = "listaApps";
-/*
-	public String[] BuscarWS() {
 
-		SoapObject request = new SoapObject(NAMESPACE, METHOD_NAMEname);
-		SoapObject requestId = new SoapObject(NAMESPACE, METHOD_NAMEid);
-
-		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
-				SoapEnvelope.VER11);
-		SoapSerializationEnvelope envelopeId = new SoapSerializationEnvelope(
-				SoapEnvelope.VER11);
-
-		envelope.setOutputSoapObject(request);
-		envelopeId.setOutputSoapObject(requestId);
-
-		HttpTransportSE ht = new HttpTransportSE(URL);
-		HttpTransportSE htId = new HttpTransportSE(URL);
-		
-		try {
-			ht.call(SOAP_ACTIONname, envelope);
-			SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
-
-			htId.call(SOAP_ACTIONid, envelopeId);
-			SoapPrimitive responseId = (SoapPrimitive) envelopeId.getResponse();
-
-			String result = response.toString();
-			String resultId = responseId.toString();
-
-			String[] listaresults = result.split(";;;");
-			String[] listaResultsId = resultId.split(";;;");
-
-			idAppsLista = Arrays.asList(listaResultsId);
-			AppsLista = Arrays.asList(listaresults);
-
-			return listaresults;
-		} catch (Exception e) {
-			Toast.makeText(getApplicationContext(), e.getMessage(),
-					Toast.LENGTH_SHORT).show();
-			System.out.println("Error" + e);
-		}
-		return null;
-	}
-	*/
-	//ArrayList<String> lista = new ArrayList<String>();
-	
-	
-	
 	class Lista extends AsyncTask<Object, Object, Object> {
 
 		@Override
 		protected void onPostExecute(Object result) {
-
+			// si el dialogo de progreso esta abierto, se elimina
+			if (pd.isShowing()) {
+				pd.dismiss();
+			}
+			// se crea instancia de lista
 			ListView mlistView = (ListView) findViewById(R.id.listView1);
 			ArrayAdapter<String> adapter = new ArrayAdapter<String>(
 					MainActivity.this, android.R.layout.simple_list_item_1,
 					AppsLista);
 			mlistView.setAdapter(adapter);
+
+			mlistView.setOnItemClickListener(new OnItemClickListener() {
+				public void onItemClick(AdapterView<?> parent, View view,
+						int position, long id) {
+
+					String s = ((TextView) view).getText().toString();
+					if (AppsLista.contains(s)) {
+						Intent intent = new Intent(MainActivity.this,
+								InfoApp.class);
+						intent.putExtra("idApp", idAppsLista.get(Integer
+								.valueOf(AppsLista.indexOf(String.valueOf(s)))));
+						startActivity(intent);
+					}
+				}
+			});
+
 			super.onPostExecute(result);
 		}
 
+		private ProgressDialog pd = new ProgressDialog(MainActivity.this);
+
 		@Override
 		protected void onPreExecute() {
-			// TODO Auto-generated method stub
-
-			super.onPreExecute();
+			// se prepara y se llama al dialogo de progreso
+			this.pd.setMessage("Cargando");
+			this.pd.show();
 		}
 
 		@Override
 		protected Object doInBackground(Object... arg0) {
-			SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
+			SoapObject request = new SoapObject(NAMESPACE, (String) arg0[0]);
 
 			SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
 					SoapEnvelope.VER11);
@@ -234,28 +206,29 @@ public class MainActivity extends SherlockActivity {
 			HttpTransportSE ht = new HttpTransportSE(URL);
 
 			try {
-				ht.call(SOAP_ACTION, envelope);
+				ht.call(NAMESPACE + (String) arg0[0], envelope);
+				// Recibe la respuesta
 				SoapObject result = (SoapObject) envelope.bodyIn;
+				// Recibe los arreglos
 				SoapObject result1 = (SoapObject) result.getProperty(0);
+				// Se separan los arreglons en dos
+				SoapObject resultId = (SoapObject) result1.getProperty(0);
+				SoapObject resultApp = (SoapObject) result1.getProperty(1);
 
-				SoapObject resultId= (SoapObject)result1.getProperty(0);
-				SoapObject resultApp= (SoapObject)result1.getProperty(1);
-				
+				// Se limpia las listas
+				idAppsLista.clear();
+				AppsLista.clear();
 				for (int i = 0; i < resultId.getPropertyCount(); i++) {
-					idAppsLista.add((String) resultId.getProperty(i).toString());
+					idAppsLista
+							.add((String) resultId.getProperty(i).toString());
 					AppsLista.add((String) resultApp.getProperty(i).toString());
 				}
-
 			} catch (Exception e) {
 				Toast.makeText(getApplicationContext(), e.getMessage(),
 						Toast.LENGTH_SHORT).show();
+				return false;
 			}
-
-			return null;
+			return true;
 		}
-
 	}
-	
-	
-	
 }

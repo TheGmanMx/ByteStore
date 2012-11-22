@@ -8,10 +8,10 @@ import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.SoapObject;
-import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
@@ -22,7 +22,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
-import android.view.Window;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -76,7 +75,12 @@ public class InfoApp extends SherlockActivity {
 	TextView txtViewName;
 	TextView txtDesc;
 	RatingBar rating;
-	String nom = "appName", desc = "appDesc", rate = "appRate";
+
+	private static final String NAMESPACE = "http://tempuri.org/";
+	private static final String URL = "http://192.168.1.4/AppStore/Service1.asmx";
+	private static final String SOAP_ACTION = "http://tempuri.org/InfoApp";
+	private static final String METHOD_NAME = "InfoApp";
+	ArrayList<String> resultArreglo = new ArrayList<String>();
 
 	public void cargarDetalles() {
 
@@ -84,15 +88,9 @@ public class InfoApp extends SherlockActivity {
 		txtDesc = (TextView) findViewById(R.id.textView1);
 		rating = (RatingBar) findViewById(R.id.ratingBar1);
 
-		SoapObject request = new SoapObject(NAMESPACE, nom);
-		SoapObject request2 = new SoapObject(NAMESPACE, desc);
-		SoapObject request3 = new SoapObject(NAMESPACE, rate);
+		SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
 
 		request.addProperty("idApp", getIntent().getStringExtra("idApp")
-				.toString());
-		request2.addProperty("idApp", getIntent().getStringExtra("idApp")
-				.toString());
-		request3.addProperty("idApp", getIntent().getStringExtra("idApp")
 				.toString());
 
 		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
@@ -100,38 +98,19 @@ public class InfoApp extends SherlockActivity {
 		envelope.dotNet = true;
 		envelope.setOutputSoapObject(request);
 
-		SoapSerializationEnvelope envelope2 = new SoapSerializationEnvelope(
-				SoapEnvelope.VER11);
-		envelope2.dotNet = true;
-		envelope2.setOutputSoapObject(request2);
-
-		SoapSerializationEnvelope envelope3 = new SoapSerializationEnvelope(
-				SoapEnvelope.VER11);
-		envelope3.dotNet = true;
-		envelope3.setOutputSoapObject(request3);
-
 		HttpTransportSE ht = new HttpTransportSE(URL);
-		HttpTransportSE ht2 = new HttpTransportSE(URL);
-		HttpTransportSE ht3 = new HttpTransportSE(URL);
 
 		try {
+			ht.call(SOAP_ACTION, envelope);
 
-			ht.call(NAMESPACE + nom, envelope);
-			ht2.call(NAMESPACE + desc, envelope2);
-			ht3.call(NAMESPACE + rate, envelope3);
-
-			SoapPrimitive so = (SoapPrimitive) envelope.getResponse();
-			SoapPrimitive so2 = (SoapPrimitive) envelope2.getResponse();
-			SoapPrimitive so3 = (SoapPrimitive) envelope3.getResponse();
-
-			String result = so.toString();
-			txtViewName.setText(result);
-
-			result = so2.toString();
-			txtDesc.setText(result);
-
-			result = so3.toString();
-			Integer estrellas = Integer.valueOf(result);
+			SoapObject result = (SoapObject) envelope.bodyIn;
+			SoapObject result1 = (SoapObject) result.getProperty(0);
+			for (int i = 0; i < result1.getPropertyCount(); i++) {
+				resultArreglo.add((String) result1.getProperty(i).toString());
+			}
+			txtViewName.setText(resultArreglo.get(0));
+			txtDesc.setText(resultArreglo.get(2));
+			Integer estrellas = Integer.valueOf(resultArreglo.get(3));
 			rating.setRating(estrellas);
 
 		} catch (Exception e) {
@@ -147,32 +126,12 @@ public class InfoApp extends SherlockActivity {
 		return true;
 	}
 
-	private static final String NAMESPACE = "http://tempuri.org/";
-	private static final String URL = "http://192.168.1.4/AppStore/Service1.asmx";
-	private static final String SOAP_ACTION = "http://tempuri.org/downUrl";
-	private static final String METHOD_NAME = "downUrl";
-
 	private ProgressDialog pd;
 
 	public void downloadApp(View view) {
-		SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
-
-		request.addProperty("idApp", getIntent().getStringExtra("idApp")
-				.toString());
-
-		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
-				SoapEnvelope.VER11);
-		envelope.dotNet = true;
-		envelope.setOutputSoapObject(request);
-		HttpTransportSE ht = new HttpTransportSE(URL);
-
 		try {
-			ht.call(SOAP_ACTION, envelope);
-			SoapPrimitive so = (SoapPrimitive) envelope.getResponse();
-			final String result = so.toString();
-
+			final String result = resultArreglo.get(1);
 			new LoadViewTask().execute(result);
-
 		} catch (Exception e) {
 			Toast.makeText(getApplicationContext(), e.getMessage(),
 					Toast.LENGTH_SHORT).show();
