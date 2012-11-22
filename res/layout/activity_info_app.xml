@@ -1,0 +1,50 @@
+<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@color/Gris"
+    tools:ignore="UselessParent" >
+
+    <ScrollView
+        android:id="@+id/scrollview1"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="82dp"
+            android:layout_gravity="fill"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/txtViewName"
+                style="@style/AppTheme"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.40"
+                android:paddingLeft="4dp"
+                android:textColor="@color/Blanco"
+                android:textSize="@dimen/titulo" />
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/Blanco" />
+
+            <RatingBar
+                android:id="@+id/ratingBar1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/button5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="downloadApp"
+                android:text="@string/download" />
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

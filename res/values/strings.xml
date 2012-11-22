@@ -1,0 +1,11 @@
+<resources>
+
+    <string name="app_name">ByteStore</string>
+    <string name="title_activity_main">ByteStore</string>
+    <string name="title_activity_info_app">Descripcion</string>
+    <string name="download">Descargar</string>
+    <string name="exit">Salir</string>
+    <string name="instalados">Apps Instaladas</string>
+    <string name="topApps">Top 10 de Apps</string>
+
+</resources>
