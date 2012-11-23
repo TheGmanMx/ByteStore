@@ -40,7 +40,6 @@ public class MainActivity extends SherlockActivity {
 
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
 				getBaseContext(), R.layout.sherlock_spinner_item, actions);
-
 		getSupportActionBar().setNavigationMode(
 				com.actionbarsherlock.app.ActionBar.NAVIGATION_MODE_LIST);
 		ActionBar.OnNavigationListener navigationListener = new OnNavigationListener() {
@@ -51,10 +50,15 @@ public class MainActivity extends SherlockActivity {
 				return false;
 			}
 		};
-
 		getSupportActionBar().setListNavigationCallbacks(adapter,
 				navigationListener);
 		adapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
+		
+		
+		//servicio background
+		Intent intentBack= new Intent(getApplicationContext(),BServices.class);
+		intentBack.putExtra("user", "memod");
+		startService(intentBack);
 	}
 
 	public void elementosLista(String[] lista) {

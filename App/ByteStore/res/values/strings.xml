@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">ByteStore</string>
@@ -7,5 +8,9 @@
     <string name="exit">Salir</string>
     <string name="instalados">Apps Instaladas</string>
     <string name="topApps">Top 10 de Apps</string>
+    <string name="inicioBackService">Inicio el Servicio en el Background</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_lista_descarga">ListaDescarga</string>
 
 </resources>

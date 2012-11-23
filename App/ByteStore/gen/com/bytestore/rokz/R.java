@@ -980,11 +980,12 @@ containing a value of this type.
         public static final int disableHome=0x7f040009;
         public static final int edit_query=0x7f040027;
         public static final int homeAsUp=0x7f040006;
-        public static final int item1=0x7f04003a;
-        public static final int item2=0x7f040039;
-        public static final int item3=0x7f04003b;
+        public static final int item1=0x7f04003b;
+        public static final int item2=0x7f04003a;
+        public static final int item3=0x7f04003c;
         public static final int listMode=0x7f040002;
         public static final int listView1=0x7f040038;
+        public static final int menu_settings=0x7f040039;
         public static final int normal=0x7f040001;
         public static final int ratingBar1=0x7f040036;
         public static final int scrollview1=0x7f040033;
@@ -1025,13 +1026,15 @@ containing a value of this type.
         public static final int abs__search_view=0x7f030015;
         public static final int abs__simple_dropdown_hint=0x7f030016;
         public static final int activity_info_app=0x7f030017;
-        public static final int activity_main=0x7f030018;
-        public static final int sherlock_spinner_dropdown_item=0x7f030019;
-        public static final int sherlock_spinner_item=0x7f03001a;
+        public static final int activity_lista_descarga=0x7f030018;
+        public static final int activity_main=0x7f030019;
+        public static final int sherlock_spinner_dropdown_item=0x7f03001a;
+        public static final int sherlock_spinner_item=0x7f03001b;
     }
     public static final class menu {
         public static final int activity_info_app=0x7f0b0000;
-        public static final int activity_main=0x7f0b0001;
+        public static final int activity_lista_descarga=0x7f0b0001;
+        public static final int activity_main=0x7f0b0002;
     }
     public static final class string {
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
@@ -1082,8 +1085,12 @@ containing a value of this type.
         public static final int app_name=0x7f09000f;
         public static final int download=0x7f090012;
         public static final int exit=0x7f090013;
+        public static final int hello_world=0x7f090017;
+        public static final int inicioBackService=0x7f090016;
         public static final int instalados=0x7f090014;
+        public static final int menu_settings=0x7f090018;
         public static final int title_activity_info_app=0x7f090011;
+        public static final int title_activity_lista_descarga=0x7f090019;
         public static final int title_activity_main=0x7f090010;
         public static final int topApps=0x7f090015;
     }
