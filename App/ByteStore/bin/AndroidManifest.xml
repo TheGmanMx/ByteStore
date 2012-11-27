@@ -29,13 +29,14 @@
             android:name=".InfoApp"
             android:label="@string/title_activity_info_app" >
         </activity>
-        <activity
-            android:name="com.bytestore.rokz.ListaDescarga"
-            android:label="@string/title_activity_lista_descarga" >
-        </activity>
 
         <service android:name="BServices" >
         </service>
+
+        <activity
+            android:name="ListaDescarga"
+            android:label="@string/title_activity_lista_descarga" >
+        </activity>
     </application>
 
 </manifest>

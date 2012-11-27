@@ -52,7 +52,7 @@ public class InfoApp extends SherlockActivity {
 		setContentView(R.layout.activity_info_app);
 		try {
 			if (InetAddress.getByName("192.168.1.4").isReachable(50)) {
-				cargarDetalles();
+				new Informacion().execute();
 			} else {
 				Toast.makeText(
 						getApplicationContext(),
@@ -82,42 +82,67 @@ public class InfoApp extends SherlockActivity {
 	private static final String METHOD_NAME = "InfoApp";
 	ArrayList<String> resultArreglo = new ArrayList<String>();
 
-	public void cargarDetalles() {
+	private class Informacion extends AsyncTask<String, Integer, Void> {
 
-		txtViewName = (TextView) findViewById(R.id.txtViewName);
-		txtDesc = (TextView) findViewById(R.id.textView1);
-		rating = (RatingBar) findViewById(R.id.ratingBar1);
+		private ProgressDialog pd = new ProgressDialog(InfoApp.this);
+		@Override
+		protected void onPreExecute() {
 
-		SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
+			txtViewName = (TextView) findViewById(R.id.txtViewName);
+			txtDesc = (TextView) findViewById(R.id.textView1);
+			rating = (RatingBar) findViewById(R.id.ratingBar1);
+			// se prepara y se llama al dialogo de progreso
+			this.pd.setMessage("Cargando");
+			this.pd.show();
+			super.onPreExecute();
+		}
 
-		request.addProperty("idApp", getIntent().getStringExtra("idApp")
-				.toString());
+		@Override
+		protected void onPostExecute(Void result) {
 
-		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
-				SoapEnvelope.VER11);
-		envelope.dotNet = true;
-		envelope.setOutputSoapObject(request);
-
-		HttpTransportSE ht = new HttpTransportSE(URL);
-
-		try {
-			ht.call(SOAP_ACTION, envelope);
-
-			SoapObject result = (SoapObject) envelope.bodyIn;
-			SoapObject result1 = (SoapObject) result.getProperty(0);
-			for (int i = 0; i < result1.getPropertyCount(); i++) {
-				resultArreglo.add((String) result1.getProperty(i).toString());
-			}
 			txtViewName.setText(resultArreglo.get(0));
 			txtDesc.setText(resultArreglo.get(2));
 			Integer estrellas = Integer.valueOf(resultArreglo.get(3));
 			rating.setRating(estrellas);
-
-		} catch (Exception e) {
-			Toast.makeText(getApplicationContext(), e.getMessage(),
-					Toast.LENGTH_SHORT).show();
-			System.out.println("Error" + e);
+			
+			if (this.pd.isShowing()) {
+				this.pd.dismiss();
+			}
+			super.onPostExecute(result);
 		}
+
+		@Override
+		protected Void doInBackground(String... params) {
+
+			SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
+
+			request.addProperty("idApp", getIntent().getStringExtra("idApp")
+					.toString());
+
+			SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
+					SoapEnvelope.VER11);
+			envelope.dotNet = true;
+			envelope.setOutputSoapObject(request);
+
+			HttpTransportSE ht = new HttpTransportSE(URL);
+
+			try {
+				ht.call(SOAP_ACTION, envelope);
+
+				SoapObject result = (SoapObject) envelope.bodyIn;
+				SoapObject result1 = (SoapObject) result.getProperty(0);
+				for (int i = 0; i < result1.getPropertyCount(); i++) {
+					resultArreglo.add((String) result1.getProperty(i).toString());
+				}
+
+			} catch (Exception e) {
+				Toast.makeText(getApplicationContext(), e.getMessage(),
+						Toast.LENGTH_SHORT).show();
+				System.out.println("Error" + e);
+			}
+			return null;
+		}
+		
 	}
 
 	@Override
@@ -145,11 +170,7 @@ public class InfoApp extends SherlockActivity {
 				Toast.LENGTH_LONG).show();
 	}
 
-	public void goHome(View view) {
-		Intent refresh = new Intent(this, MainActivity.class);
-		this.finish();
-		startActivity(refresh);
-	}
+	
 
 	private class LoadViewTask extends AsyncTask<String, Integer, Void> {
 
@@ -207,14 +228,12 @@ public class InfoApp extends SherlockActivity {
 		// Update the progress
 		@Override
 		protected void onProgressUpdate(Integer... values) {
-			// set the current progress of the progress dialog
 			pd.setProgress(values[0]);
 		}
 
 		// after executing the code in the thread
 		@Override
 		protected void onPostExecute(Void result) {
-			// close the progress dialog
 			pd.dismiss();
 
 			if (rutaarchivo != null && rutaarchivo != "") {
@@ -229,8 +248,6 @@ public class InfoApp extends SherlockActivity {
 						Toast.LENGTH_LONG).show();
 				rutaarchivo = "";
 			}
-			// initialize the View
-			// setContentView(R.layout.main);
 		}
 
 	}

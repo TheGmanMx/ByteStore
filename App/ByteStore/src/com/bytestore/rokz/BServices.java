@@ -65,11 +65,14 @@ public class BServices extends Service {
 	boolean espera = false;
 	Integer numAppEspera = 0;
 	static Integer numEsperaAnterior = 0;
+	ArrayList<String> resultArreglo = new ArrayList<String>();
 
 	private void showNotification() {
 
+		// Se crea la tarea a realizar, que en este caso
+		// checa si existe una app en espera para el usuario
 		tarea = new TimerTask() {
-
+			// variables del WS
 			private static final String NAMESPACE = "http://tempuri.org/";
 			private static final String URL = "http://192.168.1.4/AppStore/Service1.asmx";
 			private static final String SOAP_ACTION = "http://tempuri.org/ListaEspera";
@@ -77,7 +80,6 @@ public class BServices extends Service {
 
 			@Override
 			public void run() {
-				ArrayList<String> resultArreglo = new ArrayList<String>();
 
 				SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
 
@@ -105,6 +107,7 @@ public class BServices extends Service {
 						if (numAppEspera != numEsperaAnterior) {
 							numEsperaAnterior = numAppEspera;
 							espera = true;
+
 						}
 					}
 
@@ -118,32 +121,40 @@ public class BServices extends Service {
 			}
 		};
 
+		// Se realiza la tarea cada 5 segundos
 		updateTimer.scheduleAtFixedRate(tarea, 0, 5000);
 
 	}
 
 	public void ExisteEspera() {
 
-		// In this sample, we'll use the same text for the ticker and the
-		// expanded notification
-		CharSequence text = "Se tiene " + numAppEspera + " apps en espera";
+		// Mensaje de cuantas aplicaciones se tiene en espera
+		CharSequence text = "Se tiene " + numAppEspera
+				+ " apps en espera para descargar";
 
-		// Set the icon, scrolling text and timestamp
+		// Se crea la instancia de la notificacion
 		Notification notification = new Notification(R.drawable.icon, text,
 				System.currentTimeMillis());
 
-		// The PendingIntent to launch our activity if the user selects this
-		// notification
+		// El PendingIntent nos dice que actividad abrir cuando se le de click
+		// a la notificacion
+		Intent intent = new Intent(BServices.this, ListaDescarga.class);
+		intent.putStringArrayListExtra("ids", resultArreglo);
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-				new Intent(this, ListaDescarga.class), 0);
+				intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-		notification.flags=Notification.FLAG_AUTO_CANCEL;
+		// Se cancela o se cierra la notificacion despues de dar click
+		notification.flags = Notification.FLAG_AUTO_CANCEL;
+		// Mensaje
 		notification.setLatestEventInfo(this, "Descarga tus aplicaciones!",
 				text, contentIntent);
+		// Ya no volvera a abrirse hasta que cambie la cantidad de aplicaciones
+		// en espera
 		espera = false;
 		mNM.notify(NOTIFICATION, notification);
 
 	}
 
+	// a fuerzas me pedia un TAG asi que le di este
 	private static final String TAG = "Background Service ByteStore";
 }

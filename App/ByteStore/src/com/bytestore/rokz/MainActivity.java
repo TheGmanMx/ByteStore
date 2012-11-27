@@ -53,10 +53,9 @@ public class MainActivity extends SherlockActivity {
 		getSupportActionBar().setListNavigationCallbacks(adapter,
 				navigationListener);
 		adapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
-		
-		
-		//servicio background
-		Intent intentBack= new Intent(getApplicationContext(),BServices.class);
+
+		// servicio background
+		Intent intentBack = new Intent(getApplicationContext(), BServices.class);
 		intentBack.putExtra("user", "memod");
 		startService(intentBack);
 	}
