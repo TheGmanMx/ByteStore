@@ -4,23 +4,24 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import android.os.AsyncTask;
-import android.os.Bundle;
+import org.ksoap2.SoapEnvelope;
+import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapSerializationEnvelope;
+import org.ksoap2.transport.HttpTransportSE;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
-import org.ksoap2.SoapEnvelope;
-import org.ksoap2.serialization.SoapObject;
-import org.ksoap2.serialization.SoapSerializationEnvelope;
-import org.ksoap2.transport.HttpTransportSE;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
@@ -60,29 +61,30 @@ public class MainActivity extends SherlockActivity {
 		startService(intentBack);
 	}
 
+	LazyAdapter adapter;
+
 	public void elementosLista(String[] lista) {
 		ListView mlistView = (ListView) findViewById(R.id.listView1);
 
-		mlistView.setAdapter(new ArrayAdapter<String>(this,
-				android.R.layout.simple_list_item_1, lista));
-
+		adapter = new LazyAdapter(MainActivity.this, AppsLista, BannerLista);
+		mlistView.setAdapter(adapter);
 		mlistView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-
-				String s = ((TextView) view).getText().toString();
-				if (AppsLista.contains(s)) {
-					Intent intent = new Intent(MainActivity.this, InfoApp.class);
-					intent.putExtra("idApp", idAppsLista.get(Integer
-							.valueOf(AppsLista.indexOf(String.valueOf(s)))));
-					startActivity(intent);
-				}
+				Toast.makeText(getApplicationContext(), String.valueOf(id),
+						Toast.LENGTH_SHORT).show();
+				Intent intent = new Intent(MainActivity.this, InfoApp.class);
+				Collections.sort(idAppsLista);
+				intent.putExtra("idApp", idAppsLista.get((int) id));
+				startActivity(intent);
 			}
 		});
 	}
 
 	public List<String> idAppsLista = new ArrayList<String>();
 	public List<String> AppsLista = new ArrayList<String>();
+	public List<String> BannerLista = new ArrayList<String>();
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -136,7 +138,7 @@ public class MainActivity extends SherlockActivity {
 				if (InetAddress.getByName("192.168.1.4").isReachable(100)) {
 					// se llama a ejecutar hilo que carga la lista. se debe
 					// enviar el nombre del metodo en el WS
-					new Lista().execute("listaApps");
+					new Lista().execute("ArraylistaIds", "listaApps");
 				} else {
 					Toast.makeText(
 							getApplicationContext(),
@@ -165,23 +167,19 @@ public class MainActivity extends SherlockActivity {
 			}
 			// se crea instancia de lista
 			ListView mlistView = (ListView) findViewById(R.id.listView1);
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-					MainActivity.this, android.R.layout.simple_list_item_1,
-					AppsLista);
-			mlistView.setAdapter(adapter);
 
+			adapter = new LazyAdapter(MainActivity.this, AppsLista, BannerLista);
+			mlistView.setAdapter(adapter);
 			mlistView.setOnItemClickListener(new OnItemClickListener() {
 				public void onItemClick(AdapterView<?> parent, View view,
 						int position, long id) {
+					Toast.makeText(getApplicationContext(), String.valueOf(id),
+							Toast.LENGTH_SHORT).show();
+					Intent intent = new Intent(MainActivity.this, InfoApp.class);
+					Collections.sort(idAppsLista);
+					intent.putExtra("idApp", idAppsLista.get((int) id));
+					startActivity(intent);
 
-					String s = ((TextView) view).getText().toString();
-					if (AppsLista.contains(s)) {
-						Intent intent = new Intent(MainActivity.this,
-								InfoApp.class);
-						intent.putExtra("idApp", idAppsLista.get(Integer
-								.valueOf(AppsLista.indexOf(String.valueOf(s)))));
-						startActivity(intent);
-					}
 				}
 			});
 
@@ -215,17 +213,53 @@ public class MainActivity extends SherlockActivity {
 				// Recibe los arreglos
 				SoapObject result1 = (SoapObject) result.getProperty(0);
 				// Se separan los arreglons en dos
-				SoapObject resultId = (SoapObject) result1.getProperty(0);
-				SoapObject resultApp = (SoapObject) result1.getProperty(1);
+				// SoapObject resultId = (SoapObject) result1.getProperty(0);
+				// SoapObject resultApp = (SoapObject) result1.getProperty(1);
 
 				// Se limpia las listas
 				idAppsLista.clear();
 				AppsLista.clear();
-				for (int i = 0; i < resultId.getPropertyCount(); i++) {
-					idAppsLista
-							.add((String) resultId.getProperty(i).toString());
-					AppsLista.add((String) resultApp.getProperty(i).toString());
+				BannerLista.clear();
+				for (int i = 0; i < result1.getPropertyCount(); i++) {
+					idAppsLista.add((String) result1.getProperty(i).toString());
+					// AppsLista.add((String)
+					// resultApp.getProperty(i).toString());
 				}
+
+				SoapObject requestApps = new SoapObject(NAMESPACE,
+						(String) arg0[1]);
+
+				// Creo Objeto soap para crear "arreglo"
+				SoapObject soapCompanies = new SoapObject(NAMESPACE, "ids");
+				// le agrego los valores al arreglo
+				for (String i : idAppsLista) {
+					soapCompanies.addProperty("string", i);
+				}
+				// agrego el arreglo al request
+				requestApps.addSoapObject(soapCompanies);
+
+				SoapSerializationEnvelope envelopeApps = new SoapSerializationEnvelope(
+						SoapEnvelope.VER11);
+				envelopeApps.dotNet = true;
+				envelopeApps.setOutputSoapObject(requestApps);
+				HttpTransportSE htApps = new HttpTransportSE(URL);
+				htApps.call(NAMESPACE + (String) arg0[1], envelopeApps);
+				// Recibe la respuesta
+				SoapObject resultApps = (SoapObject) envelopeApps.bodyIn;
+				// Recibe los arreglos
+				SoapObject result1Apps = (SoapObject) resultApps.getProperty(0);
+				// Se separan los arreglons en dos
+				SoapObject resultListaApps = (SoapObject) result1Apps
+						.getProperty(0);
+				SoapObject resultBannerApp = (SoapObject) result1Apps
+						.getProperty(1);
+				for (int i = 0; i < resultListaApps.getPropertyCount(); i++) {
+					AppsLista.add((String) resultListaApps.getProperty(i)
+							.toString());
+					BannerLista.add((String) resultBannerApp.getProperty(i)
+							.toString());
+				}
+
 			} catch (Exception e) {
 				Toast.makeText(getApplicationContext(), e.getMessage(),
 						Toast.LENGTH_SHORT).show();
