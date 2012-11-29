@@ -30,15 +30,37 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 public class MainActivity extends SherlockActivity {
+	
+	@Override
+	protected void onRestart() {
+		if (sesion.SesionActiva()) {
+			// servicio background
+			Intent intentBack = new Intent(getApplicationContext(),
+					BServices.class);
+			intentBack.putExtra("user", Sesion.user);
+			startService(intentBack);
+		}
+		super.onRestart();
+	}
 
-	String[] actions = new String[] { "Top 10", "Instalados", "Sistema",
-			"Oficina", "Juegos" };
+	String[] actions = new String[] { "Inicio", "Juegos", "Sistema", "Oficina" };
+	Integer categoria = 0;
+	LazyAdapter adapter;
+	MenuItem itemMenu;
+	Sesion sesion = new Sesion();
+
+	public List<String> BannerLista = new ArrayList<String>();
+	public List<String> AppsLista = new ArrayList<String>();
+	public List<String> idAppsLista = new ArrayList<String>();
+
 
 	public void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.activity_main);
 
 		super.onCreate(savedInstanceState);
-
+		Toast.makeText(getApplicationContext(),
+				Boolean.valueOf(sesion.SesionActiva()).toString(),
+				Toast.LENGTH_SHORT).show();
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
 				getBaseContext(), R.layout.sherlock_spinner_item, actions);
 		getSupportActionBar().setNavigationMode(
@@ -47,7 +69,7 @@ public class MainActivity extends SherlockActivity {
 			@Override
 			public boolean onNavigationItemSelected(int itemPosition,
 					long itemId) {
-				cargarCategoria(0);
+				cargarCategoria(itemPosition);
 				return false;
 			}
 		};
@@ -55,40 +77,24 @@ public class MainActivity extends SherlockActivity {
 				navigationListener);
 		adapter.setDropDownViewResource(R.layout.sherlock_spinner_dropdown_item);
 
-		// servicio background
-		Intent intentBack = new Intent(getApplicationContext(), BServices.class);
-		intentBack.putExtra("user", "memod");
-		startService(intentBack);
+		if (sesion.SesionActiva()) {
+			// servicio background
+			Intent intentBack = new Intent(getApplicationContext(),
+					BServices.class);
+			intentBack.putExtra("user", Sesion.user);
+			startService(intentBack);
+		}
 	}
-
-	LazyAdapter adapter;
-
-	public void elementosLista(String[] lista) {
-		ListView mlistView = (ListView) findViewById(R.id.listView1);
-
-		adapter = new LazyAdapter(MainActivity.this, AppsLista, BannerLista);
-		mlistView.setAdapter(adapter);
-		mlistView.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				Toast.makeText(getApplicationContext(), String.valueOf(id),
-						Toast.LENGTH_SHORT).show();
-				Intent intent = new Intent(MainActivity.this, InfoApp.class);
-				Collections.sort(idAppsLista);
-				intent.putExtra("idApp", idAppsLista.get((int) id));
-				startActivity(intent);
-			}
-		});
-	}
-
-	public List<String> idAppsLista = new ArrayList<String>();
-	public List<String> AppsLista = new ArrayList<String>();
-	public List<String> BannerLista = new ArrayList<String>();
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getSupportMenuInflater().inflate(R.menu.activity_main, menu);
+		itemMenu = menu.findItem(R.id.item1);
+		if (sesion.SesionActiva()) {
+			itemMenu.setTitle("Salir de sesion");
+		} else {
+			itemMenu.setTitle("Iniciar sesion");
+		}
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -96,10 +102,15 @@ public class MainActivity extends SherlockActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.item1:
-			// Instalados
-			return true;
-		case R.id.item2:
-			// TopApps
+			if (sesion.SesionActiva()) {
+				Toast.makeText(this, sesion.terminarSesion(), Toast.LENGTH_LONG)
+						.show();
+				item.setTitle("Iniciar sesion");
+			} else {
+				Intent intentLog = new Intent(this, LoginActivity.class);
+				startActivityForResult(intentLog, 0);
+				itemMenu = item;
+			}
 			return true;
 		case R.id.item3:
 			this.finish();
@@ -109,35 +120,79 @@ public class MainActivity extends SherlockActivity {
 		}
 	}
 
-	public void goHome(View view) {
-		finish();
-		startActivity(getIntent());
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == 0) {
+			if (resultCode == RESULT_OK) {
+				itemMenu.setTitle(data.getStringExtra("result"));
+			}
+		}
 	}
 
 	public void cargarCategoria(Integer idCat) {
 		switch (idCat) {
 		case 1:
-			// temporal
-			elementosLista(new String[] { "Lista de", "Aplicaciones",
-					"Instaladas" });
+			try {
+				if (InetAddress.getByName("192.168.1.4").isReachable(100)) {
+					// se llama a ejecutar hilo que carga la lista. se debe
+					// enviar el nombre del metodo en el WS
+					categoria = 1;
+					new Lista().execute("ArraylistaIdsCat", "listaApps");
+				} else {
+					Toast.makeText(
+							getApplicationContext(),
+							"No se logro conectar al servidor o no se tiene conexion al internet. Intenta mas tarde.",
+							Toast.LENGTH_LONG).show();
+				}
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			break;
 		case 2:
-			elementosLista(new String[] { "Lista de", "Aplicaciones de",
-					"Sistema" });
+			try {
+				if (InetAddress.getByName("192.168.1.4").isReachable(100)) {
+					// se llama a ejecutar hilo que carga la lista. se debe
+					// enviar el nombre del metodo en el WS
+					categoria = 2;
+					new Lista().execute("ArraylistaIdsCat", "listaApps");
+				} else {
+					Toast.makeText(
+							getApplicationContext(),
+							"No se logro conectar al servidor o no se tiene conexion al internet. Intenta mas tarde.",
+							Toast.LENGTH_LONG).show();
+				}
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			break;
 		case 3:
-			elementosLista(new String[] { "Lista de", "Aplicaciones de",
-					"Oficina" });
-			break;
-		case 4:
-			elementosLista(new String[] { "Lista de", "Aplicaciones de",
-					"Juegos" });
+			try {
+				if (InetAddress.getByName("192.168.1.4").isReachable(100)) {
+					// se llama a ejecutar hilo que carga la lista. se debe
+					// enviar el nombre del metodo en el WS
+					categoria = 3;
+					new Lista().execute("ArraylistaIdsCat", "listaApps");
+				} else {
+					Toast.makeText(
+							getApplicationContext(),
+							"No se logro conectar al servidor o no se tiene conexion al internet. Intenta mas tarde.",
+							Toast.LENGTH_LONG).show();
+				}
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			break;
 		default:
 			try {
 				if (InetAddress.getByName("192.168.1.4").isReachable(100)) {
 					// se llama a ejecutar hilo que carga la lista. se debe
 					// enviar el nombre del metodo en el WS
+					categoria = 0;
 					new Lista().execute("ArraylistaIds", "listaApps");
 				} else {
 					Toast.makeText(
@@ -173,8 +228,6 @@ public class MainActivity extends SherlockActivity {
 			mlistView.setOnItemClickListener(new OnItemClickListener() {
 				public void onItemClick(AdapterView<?> parent, View view,
 						int position, long id) {
-					Toast.makeText(getApplicationContext(), String.valueOf(id),
-							Toast.LENGTH_SHORT).show();
 					Intent intent = new Intent(MainActivity.this, InfoApp.class);
 					Collections.sort(idAppsLista);
 					intent.putExtra("idApp", idAppsLista.get((int) id));
@@ -198,6 +251,9 @@ public class MainActivity extends SherlockActivity {
 		@Override
 		protected Object doInBackground(Object... arg0) {
 			SoapObject request = new SoapObject(NAMESPACE, (String) arg0[0]);
+			if (categoria > 0) {
+				request.addProperty("cat", categoria);
+			}
 
 			SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
 					SoapEnvelope.VER11);

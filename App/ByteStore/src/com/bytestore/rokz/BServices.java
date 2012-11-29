@@ -28,8 +28,8 @@ public class BServices extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 
 		user = intent.getStringExtra("user");
-		Toast.makeText(this, "Se inicio servicio de ByteStore",
-				Toast.LENGTH_LONG).show();
+		// Toast.makeText(this, "Se inicio servicio de ByteStore",
+		// Toast.LENGTH_LONG).show();
 		return START_NOT_STICKY;
 	}
 
@@ -66,6 +66,7 @@ public class BServices extends Service {
 	Integer numAppEspera = 0;
 	static Integer numEsperaAnterior = 0;
 	ArrayList<String> resultArreglo = new ArrayList<String>();
+	Sesion sesion = new Sesion();
 
 	private void showNotification() {
 
@@ -80,7 +81,6 @@ public class BServices extends Service {
 
 			@Override
 			public void run() {
-
 				SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
 
 				request.addProperty("user", user);
@@ -118,6 +118,7 @@ public class BServices extends Service {
 				if (espera) {
 					ExisteEspera();
 				}
+
 			}
 		};
 

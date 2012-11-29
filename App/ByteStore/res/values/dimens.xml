@@ -3,6 +3,7 @@
     <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_medium">8dp</dimen>
     <dimen name="padding_large">16dp</dimen>
-    <dimen name="titulo">22dp</dimen>
+    <dimen name="titulo">40dp</dimen>
+    <dimen name="TituloListas">20dp</dimen>
 
 </resources>

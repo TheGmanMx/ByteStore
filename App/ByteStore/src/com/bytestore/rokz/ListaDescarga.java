@@ -15,9 +15,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
@@ -25,18 +25,25 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class ListaDescarga extends SherlockActivity {
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		return super.onCreateOptionsMenu(menu);
-	}
+	private static final String URL = "http://192.168.1.4/AppStore/Service1.asmx";
+	private static final String NAMESPACE = "http://tempuri.org/";
+
+	LazyAdapter adapter;
+	public List<String> bannerAppsLista = new ArrayList<String>();
+	public List<String> AppsLista = new ArrayList<String>();
+	public List<String> idAppsLista = new ArrayList<String>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
 		setContentView(R.layout.activity_lista_descarga);
 		new Lista().execute("ListaEsperaPorId");
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
@@ -52,42 +59,29 @@ public class ListaDescarga extends SherlockActivity {
 		}
 	}
 
-	private static final String NAMESPACE = "http://tempuri.org/";
-	private static final String URL = "http://192.168.1.4/AppStore/Service1.asmx";
-	public List<String> idAppsLista = new ArrayList<String>();
-	public List<String> AppsLista = new ArrayList<String>();
-	public List<String> bannerAppsLista = new ArrayList<String>();
+	public void eliminarDeLista(int id) {
+		SoapObject request = new SoapObject(NAMESPACE, "QuitarDeEspera");
 
-	LazyAdapter adapter;
+		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
+				SoapEnvelope.VER11);
+		envelope.dotNet = true;
+
+		request.addProperty("idApp", id);
+		request.addProperty("user", Sesion.user);
+		envelope.setOutputSoapObject(request);
+
+		HttpTransportSE ht = new HttpTransportSE(URL);
+
+		try {
+			// hace llamada al WS
+			ht.call(NAMESPACE + "QuitarDeEspera", envelope);
+		} catch (Exception e) {
+			Toast.makeText(getApplicationContext(), e.getMessage(),
+					Toast.LENGTH_SHORT).show();
+		}
+	}
 
 	class Lista extends AsyncTask<Object, Object, Object> {
-
-		@Override
-		protected void onPostExecute(Object result) {
-			// si el dialogo de progreso esta abierto, se elimina
-			if (pd.isShowing()) {
-				pd.dismiss();
-			}
-			// se crea instancia de lista
-			ListView mlistView = (ListView) findViewById(R.id.listView1);
-			adapter = new LazyAdapter(ListaDescarga.this, AppsLista,
-					bannerAppsLista);
-			mlistView.setAdapter(adapter);
-			mlistView.setOnItemClickListener(new OnItemClickListener() {
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view,
-						int position, long id) {
-					Toast.makeText(getApplicationContext(), String.valueOf(id),
-							Toast.LENGTH_SHORT).show();
-					Intent intent = new Intent(ListaDescarga.this,
-							InfoApp.class);
-					Collections.sort(idAppsLista);
-					intent.putExtra("idApp", idAppsLista.get((int) id));
-					startActivity(intent);
-				}
-			});
-			super.onPostExecute(result);
-		}
 
 		private ProgressDialog pd = new ProgressDialog(ListaDescarga.this);
 
@@ -97,7 +91,7 @@ public class ListaDescarga extends SherlockActivity {
 			this.pd.setMessage("Cargando");
 			this.pd.show();
 		}
-		
+
 		@Override
 		protected Object doInBackground(Object... arg0) {
 			SoapObject request = new SoapObject(NAMESPACE, (String) arg0[0]);
@@ -138,6 +132,7 @@ public class ListaDescarga extends SherlockActivity {
 				AppsLista.clear();
 				bannerAppsLista.clear();
 				idAppsLista = ids;
+				Collections.sort(idAppsLista);
 				for (int i = 0; i < resultApp.getPropertyCount(); i++) {
 					AppsLista.add((String) resultApp.getProperty(i).toString());
 					bannerAppsLista.add((String) resultBan.getProperty(i)
@@ -151,5 +146,33 @@ public class ListaDescarga extends SherlockActivity {
 			return true;
 		}
 
+		@Override
+		protected void onPostExecute(Object result) {
+			// si el dialogo de progreso esta abierto, se elimina
+			if (pd.isShowing()) {
+				pd.dismiss();
+			}
+			// se crea instancia de lista
+			ListView mlistView = (ListView) findViewById(R.id.listView1);
+			adapter = new LazyAdapter(ListaDescarga.this, AppsLista,
+					bannerAppsLista);
+			mlistView.setAdapter(adapter);
+			mlistView.setOnItemClickListener(new OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view,
+						int position, long id) {
+					final Integer idApp = Integer.valueOf(idAppsLista
+							.get((int) id));
+					Intent intent;
+					eliminarDeLista(idApp);
+
+					intent = new Intent(ListaDescarga.this, InfoApp.class);
+					intent.putExtra("idApp", idApp.toString());
+					startActivity(intent);
+				}
+			});
+			super.onPostExecute(result);
+		}
 	}
+
 }

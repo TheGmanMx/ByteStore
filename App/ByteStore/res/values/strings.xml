@@ -6,11 +6,12 @@
     <string name="title_activity_info_app">Descripcion</string>
     <string name="download">Descargar</string>
     <string name="exit">Salir</string>
-    <string name="instalados">Apps Instaladas</string>
-    <string name="topApps">Top 10 de Apps</string>
+    <string name="sesion">Iniciar sesion</string>
+    <string name="inicio">Inicio</string>
     <string name="inicioBackService">Inicio el Servicio en el Background</string>
     <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">Settings</string>
-    <string name="title_activity_lista_descarga">ListaDescarga</string>
+    <string name="title_activity_lista_descarga">Aplicaciones en Espera</string>
+    <string name="usuario">Usuario</string>
+    <string name="AppIcon">Icono del App</string>
 
 </resources>

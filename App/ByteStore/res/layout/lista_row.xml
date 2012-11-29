@@ -4,14 +4,14 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentLeft="true"
-    android:layout_marginRight="5dip"
-    android:padding="3dip" >
+    android:layout_marginRight="5dip" >
 
     <ImageView
         android:id="@+id/list_image"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_weight="1"
+        android:contentDescription="@string/AppIcon"
         android:src="@drawable/cm7rjcx9" />
 
     <TextView
@@ -20,8 +20,8 @@
         android:layout_height="wrap_content"
         android:layout_weight="3"
         android:paddingLeft="@dimen/padding_large"
-        android:textColor="#040404"
-        android:textSize="@dimen/padding_large"
+        android:textColor="@color/Blanco"
+        android:textSize="@dimen/TituloListas"
         android:textStyle="bold"
         android:typeface="sans" />
 

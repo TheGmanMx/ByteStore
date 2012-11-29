@@ -15,13 +15,24 @@ import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.Gallery;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,25 +42,32 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 public class InfoApp extends SherlockActivity {
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case android.R.id.home:
-			Intent intent = new Intent(this, MainActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(intent);
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
-		}
-	}
+	private static final String NAMESPACE = "http://tempuri.org/";
+	private static final String SOAP_ACTION = "http://tempuri.org/InfoApp";
+	private static final String METHOD_NAME = "InfoApp";
+	private static final String URL = "http://192.168.1.4/AppStore/Service1.asmx";
+
+	TextView txtDesc;
+	RatingBar rating;
+	MenuItem itemMenu;
+
+	ArrayList<String> ImagenesArray = new ArrayList<String>();
+	ArrayList<String> resultArreglo = new ArrayList<String>();
+
+	Gallery g;
+	Sesion sesion = new Sesion();
+
+	private ProgressDialog pd;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+		Toast.makeText(getApplicationContext(),
+				Boolean.valueOf(sesion.SesionActiva()).toString(),
+				Toast.LENGTH_SHORT).show();
 		setContentView(R.layout.activity_info_app);
+
 		try {
 			if (InetAddress.getByName("192.168.1.4").isReachable(50)) {
 				new Informacion().execute();
@@ -72,23 +90,50 @@ public class InfoApp extends SherlockActivity {
 		}
 	}
 
-	TextView txtViewName;
-	TextView txtDesc;
-	RatingBar rating;
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
 
-	private static final String NAMESPACE = "http://tempuri.org/";
-	private static final String URL = "http://192.168.1.4/AppStore/Service1.asmx";
-	private static final String SOAP_ACTION = "http://tempuri.org/InfoApp";
-	private static final String METHOD_NAME = "InfoApp";
-	ArrayList<String> resultArreglo = new ArrayList<String>();
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			Intent intent = new Intent(this, MainActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			return true;
+		case R.id.item1:
+			if (sesion.SesionActiva()) {
+				Toast.makeText(this, sesion.terminarSesion(), Toast.LENGTH_LONG)
+						.show();
+				item.setTitle("Iniciar sesion");
+			} else {
+				Intent intentLog = new Intent(this, LoginActivity.class);
+				startActivityForResult(intentLog, 0);
+				itemMenu = item;
+			}
+			return true;
+		case R.id.item3:
+			this.finish();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+		if (requestCode == 0) {
+			if (resultCode == RESULT_OK) {
+				itemMenu.setTitle(data.getStringExtra("result"));
+			}
+		}
+	}
 
 	private class Informacion extends AsyncTask<String, Integer, Void> {
 
 		private ProgressDialog pd = new ProgressDialog(InfoApp.this);
+
 		@Override
 		protected void onPreExecute() {
 
-			txtViewName = (TextView) findViewById(R.id.txtViewName);
 			txtDesc = (TextView) findViewById(R.id.textView1);
 			rating = (RatingBar) findViewById(R.id.ratingBar1);
 			// se prepara y se llama al dialogo de progreso
@@ -99,12 +144,16 @@ public class InfoApp extends SherlockActivity {
 
 		@Override
 		protected void onPostExecute(Void result) {
-
-			txtViewName.setText(resultArreglo.get(0));
+			setTitle(resultArreglo.get(0));
 			txtDesc.setText(resultArreglo.get(2));
 			Integer estrellas = Integer.valueOf(resultArreglo.get(3));
 			rating.setRating(estrellas);
-			
+
+			if (!ImagenesArray.isEmpty()) {
+				g = (Gallery) findViewById(R.id.gallery1);
+				// g.setSpacing(1);
+				g.setAdapter(new ImageAdapter(InfoApp.this));
+			}
 			if (this.pd.isShowing()) {
 				this.pd.dismiss();
 			}
@@ -113,26 +162,32 @@ public class InfoApp extends SherlockActivity {
 
 		@Override
 		protected Void doInBackground(String... params) {
-
 			SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
-
-			request.addProperty("idApp", getIntent().getStringExtra("idApp")
-					.toString());
-
+			String idApp = getIntent().getStringExtra("idApp").toString();
+			request.addProperty("idApp", idApp);
 			SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
 					SoapEnvelope.VER11);
 			envelope.dotNet = true;
 			envelope.setOutputSoapObject(request);
 
 			HttpTransportSE ht = new HttpTransportSE(URL);
-
 			try {
 				ht.call(SOAP_ACTION, envelope);
 
+				resultArreglo.clear();
+				ImagenesArray.clear();
+
 				SoapObject result = (SoapObject) envelope.bodyIn;
 				SoapObject result1 = (SoapObject) result.getProperty(0);
-				for (int i = 0; i < result1.getPropertyCount(); i++) {
-					resultArreglo.add((String) result1.getProperty(i).toString());
+				SoapObject resultA1 = (SoapObject) result1.getProperty(0);
+				SoapObject resultA2 = (SoapObject) result1.getProperty(1);
+				for (int i = 0; i < resultA1.getPropertyCount(); i++) {
+					resultArreglo.add((String) resultA1.getProperty(i)
+							.toString());
+				}
+				for (int i = 0; i < resultA2.getPropertyCount(); i++) {
+					ImagenesArray.add((String) resultA2.getProperty(i)
+							.toString());
 				}
 
 			} catch (Exception e) {
@@ -142,21 +197,31 @@ public class InfoApp extends SherlockActivity {
 			}
 			return null;
 		}
-		
+
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getSupportMenuInflater().inflate(R.menu.activity_info_app, menu);
+
+		getSupportMenuInflater().inflate(R.menu.activity_main, menu);
+		itemMenu = menu.findItem(R.id.item1);
+		if (sesion.SesionActiva()) {
+			itemMenu.setTitle("Salir de sesion");
+		} else {
+			itemMenu.setTitle("Iniciar sesion");
+		}
+
 		return true;
 	}
 
-	private ProgressDialog pd;
-
 	public void downloadApp(View view) {
 		try {
-			final String result = resultArreglo.get(1);
-			new LoadViewTask().execute(result);
+			if (sesion.SesionActiva()) {
+				final String result = resultArreglo.get(1);
+				new LoadViewTask().execute(result);
+			} else {
+				iniciarSesion();
+			}
 		} catch (Exception e) {
 			Toast.makeText(getApplicationContext(), e.getMessage(),
 					Toast.LENGTH_SHORT).show();
@@ -164,13 +229,21 @@ public class InfoApp extends SherlockActivity {
 		}
 	}
 
-	public void getKey(View view) {
-		Toast.makeText(getApplicationContext(),
-				getIntent().getStringExtra("idApp").toString(),
-				Toast.LENGTH_LONG).show();
-	}
+	public void iniciarSesion() {
+		AlertDialog ad = new AlertDialog.Builder(InfoApp.this)
+				.setMessage(
+						"Aun no haz iniciado sesion. A continuacion ingresa tus datos")
+				.setPositiveButton("Ok", new OnClickListener() {
 
-	
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Intent intent = new Intent(InfoApp.this,
+								LoginActivity.class);
+						startActivityForResult(intent, 0);
+					}
+				}).create();
+		ad.show();
+	}
 
 	private class LoadViewTask extends AsyncTask<String, Integer, Void> {
 
@@ -225,13 +298,11 @@ public class InfoApp extends SherlockActivity {
 
 		private String rutaarchivo;
 
-		// Update the progress
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			pd.setProgress(values[0]);
 		}
 
-		// after executing the code in the thread
 		@Override
 		protected void onPostExecute(Void result) {
 			pd.dismiss();
@@ -244,11 +315,71 @@ public class InfoApp extends SherlockActivity {
 				startActivity(intent);
 				// startActivityForResult(intent,1);
 				Toast.makeText(getApplicationContext(),
-						"Aplicacion instalada: " + rutaarchivo,
+						"Acepta la instalacion a continuacion.",
 						Toast.LENGTH_LONG).show();
 				rutaarchivo = "";
 			}
 		}
 
 	}
+
+	public class ImageAdapter extends BaseAdapter {
+		public ImageAdapter(Context c) {
+			mContext = c;
+		}
+
+		public int getCount() {
+			return ImagenesArray.size();
+		}
+
+		public Object getItem(int position) {
+			return position;
+		}
+
+		public long getItemId(int position) {
+			return position;
+		}
+
+		public View getView(int position, View convertView, ViewGroup parent) {
+			ImageView i = new ImageView(mContext);
+			try {
+				// arreglar esto
+				if (!ImagenesArray.isEmpty()) {
+					i.setImageBitmap(getBitmapFromURL(ImagenesArray
+							.get(position)));
+					i.setScaleType(ImageView.ScaleType.FIT_XY);
+					i.setLayoutParams(new Gallery.LayoutParams(250, 250));
+					return i;
+				} else {
+					i.setImageResource(0);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return convertView;
+		}
+
+		public Bitmap getBitmapFromURL(String src) {
+			try {
+				Log.e("src", src);
+				URL url = new URL(src);
+				HttpURLConnection connection = (HttpURLConnection) url
+						.openConnection();
+				connection.setDoInput(true);
+				connection.connect();
+				InputStream input = connection.getInputStream();
+				Bitmap myBitmap = BitmapFactory.decodeStream(input);
+				Log.e("Bitmap", "returned");
+				return myBitmap;
+			} catch (IOException e) {
+				e.printStackTrace();
+				Log.e("Exception", e.getMessage());
+				return null;
+			}
+		}
+
+		private Context mContext;
+
+	}
+
 }

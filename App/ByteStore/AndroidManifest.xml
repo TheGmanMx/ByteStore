@@ -17,7 +17,7 @@
         android:label="@string/app_name"
         android:theme="@style/Theme.Sherlock" >
         <activity
-            android:name=".MainActivity"
+            android:name="com.bytestore.rokz.MainActivity"
             android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,16 +26,21 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".InfoApp"
+            android:name="com.bytestore.rokz.InfoApp"
             android:label="@string/title_activity_info_app" >
         </activity>
 
-        <service android:name="BServices" >
+        <service android:name="com.bytestore.rokz.BServices" >
         </service>
 
         <activity
-            android:name="ListaDescarga"
+            android:name="com.bytestore.rokz.ListaDescarga"
             android:label="@string/title_activity_lista_descarga" >
+        </activity>
+        <activity
+            android:name="com.bytestore.rokz.LoginActivity"
+            android:label="@string/title_activity_login"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
     </application>
 
